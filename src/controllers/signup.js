@@ -1,34 +1,8 @@
-import Joi from "joi";
-import User from "../models/user";
 import bcryptjs from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-
-const signupSchema = Joi.object({
-  name: Joi.string().min(3).max(30).required().messages({
-    "any.required": "Trường Name là bắt buôc",
-    "string.empty": "Trường Name không dược để trống",
-    "string.min": "Trường Name phải có ít nhất {#limit} ký tự",
-    "string.max": "Trường Name không được vượt quá {#limit} ký tự",
-  }),
-  email: Joi.string().email().required().messages({
-    "any.required": "Trường Email là bắt buôc",
-    "string.empty": "Trường Emailkhông dược để trống",
-    "string.email": "Trường Name phải là email hợp lệ",
-  }),
-  password: Joi.string().min(6).max(30).required().messages({
-    "any.required": "Trường Password là bắt buôc",
-    "string.empty": "Trường Password không dược để trống",
-    "string.min": "Trường Password phải có ít nhất {#limit} ký tự",
-    "string.max": "Trường Password không được vượt quá {#limit} ký tự",
-  }),
-  confirmPassword: Joi.string().required().valid(Joi.ref("password")).messages({
-    "any.required": "Trường Confirm Password là bắt buôc",
-    "any.only": "Mật khẩu không trùng khớp",
-  }),
-  avatar: Joi.string().uri().messages({
-    "string.uri": "Trường Avatat phải là đường dẫn hợp lệ",
-  }),
-});
+import jwt from "jsonwebtoken";
+import User from "../models/user";
+import { signinSchema, signupSchema } from "../validations/auth";
 
 export const signup = async (req, res) => {
   const { email, password, name, avatar } = req.body;
@@ -60,5 +34,41 @@ export const signup = async (req, res) => {
     user,
   });
 };
-export const signin = async (req, res) => {};
+export const signin = async (req, res) => {
+  const { email, password } = req.body;
+
+  //B1: Validate: email, password
+  const { error } = signinSchema.validate(req.body);
+  if (error) {
+    const errors = error.details.map((err) => err.message);
+    return res.status(400).json({
+      message: errors,
+    });
+  }
+  // Check xem có email có trong database
+  const checkUser = await User.findOne({ email });
+  if (!checkUser) {
+    return res.status(404).json({
+      message: "email hoặc password không đúng",
+    });
+  }
+  // So sánh password: bcryptjs
+  const checkPassword = await bcryptjs.compare(password, checkUser.password);
+  if (!checkPassword) {
+    return res.status(404).json({
+      message: "email hoặc password không đúng",
+    });
+  }
+  // Mã hóa token
+  const token = jwt.sign({ id: checkUser._id }, "khoa-bi-mat", {
+    expiresIn: "1h",
+  });
+
+  // Trả về thông tin User và Token
+  res.status(200).json({
+    message: "Login Successfuly ",
+    user: { ...checkUser.toObject(), password: undefined },
+    token,
+  });
+};
 export const logout = async (req, res) => {};
