@@ -1,9 +1,13 @@
 import Category from "../models/category";
 import { StatusCodes } from "http-status-codes";
+import slugify from "slugify";
 
 export const create = async (req, res) => {
   try {
-    const category = await Category.create(req.body);
+    const category = await Category.create({
+      name: req.body.name,
+      slug: slugify(req.body.name, "-"),
+    });
 
     return res.status(StatusCodes.CREATED).json(category);
   } catch (error) {

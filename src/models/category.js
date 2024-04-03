@@ -7,6 +7,11 @@ const categoryShema = new Schema(
       required: true,
       lowercase: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      lowercase: true,
+    },
   },
   {
     timestamps: true,

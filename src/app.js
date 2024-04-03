@@ -7,6 +7,7 @@ import authRouter from "./routers/auth";
 import { connectDB } from "./config/db";
 import productRouter from "./routers/product";
 import categoryRouter from "./routers/category";
+import cartRouter from "./routers/cart";
 
 const app = express();
 dotenv.config();
@@ -22,5 +23,6 @@ connectDB(process.env.DB_URI);
 app.use("/api/v1", authRouter);
 app.use("/api/v1", productRouter);
 app.use("/api/v1", categoryRouter);
+app.use("/api/v1", cartRouter);
 
 export const viteNodeApp = app;
