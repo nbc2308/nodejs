@@ -27,7 +27,7 @@ export const getAll = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findOne({ slug: req.params.slug });
+    const product = await Product.findById(req.params.id);
     return res.status(StatusCodes.OK).json(product);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
