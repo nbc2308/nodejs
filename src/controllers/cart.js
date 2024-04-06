@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import Cart from "../models/cart";
 
-// Lấy danh sách sản phẩm thuộc 1 user
 export const getCartByUserId = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -15,9 +14,11 @@ export const getCartByUserId = async (req, res) => {
       })),
     };
     return res.status(StatusCodes.OK).json(cartData);
-  } catch (error) {}
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+  }
 };
-// Thêm sản phẩm vào giỏ hàng
+
 export const addItemToCart = async (req, res) => {
   const { userId, productId, quantity } = req.body;
   try {
@@ -48,7 +49,6 @@ export const addItemToCart = async (req, res) => {
       .json({ error: "Internal Server Error" });
   }
 };
-// Xóa sản phẩm trong giỏ hàng thuộc 1 user
 
 export const removeFromCart = async (req, res) => {
   const { userId, productId } = req.body;
@@ -72,7 +72,7 @@ export const removeFromCart = async (req, res) => {
       .json({ error: "Internal Server Error" });
   }
 };
-// Cập nhật số lượng sản phẩm trong giỏ hàng thuộc 1 user
+
 export const updateProductQuantity = async (req, res) => {
   const { userId, productId, quantity } = req.body;
   try {
@@ -96,7 +96,7 @@ export const updateProductQuantity = async (req, res) => {
     return res.status(StatusCodes.OK).json({ cart });
   } catch (error) {}
 };
-// Tăng số lượng của sản phẩm trong giỏ hàng
+
 export const increaseProductQuantity = async (req, res) => {
   const { userId, productId } = req.body;
   try {
@@ -121,7 +121,7 @@ export const increaseProductQuantity = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-// Giảm số lượng của sản phẩm trong giỏ hàng
+
 export const decreaseProductQuantity = async (req, res) => {
   const { userId, productId } = req.body;
   try {
